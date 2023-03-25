@@ -1,12 +1,11 @@
-package tanzi.staff;
+package tanzi.algorithm;
 
-import tanzi.algorithm.EnPassant;
-import tanzi.algorithm.King;
 import tanzi.model.EnPasser;
 import tanzi.model.MoveMeta;
 import tanzi.model.Piece;
+import tanzi.staff.BoardRegistry;
 
-public class PieceDiscovery {
+public abstract class PieceDiscovery {
 
     /*
      * This method can calculate which piece of the board can make the move as specified
@@ -20,33 +19,31 @@ public class PieceDiscovery {
      * object.
      *
      * */
-    public static Piece discover(MoveMeta moveMeta, Arbiter ar) {
+    public static Piece discover(MoveMeta moveMeta, BoardRegistry br) {
         int type = moveMeta.type;
         int color = moveMeta.color;
 
-        BoardRegistry br = ar.getBR();
-
         if (moveMeta.castle) {
-            Piece king = br.getPiece(Piece.PIECE_KING, moveMeta.color);
+            Piece king = br.piece(Piece.KING, moveMeta.color);
             String[] castleMeta = King.getCastleMeta(moveMeta);
 
-            int castleResult = King.canCastle(king.getCurrentSquare(), castleMeta[2], ar, br);
+            int castleResult = King.canCastle(king.currentSquare(), castleMeta[2], br);
             int castleType = moveMeta.shortCastle ? 1 : 2;
-            if (castleResult == castleType) return br.getPiece(king.getCurrentSquare());
+            if (castleResult == castleType) return br.piece(king.currentSquare());
             return null;
         }
 
         // can I take down any enemy EnPasser?
-        if (type == Piece.PIECE_PAWN) {
-            EnPasser enemyEnPasser = ar.getEnPasserFor(color);
+        if (type == Piece.PAWN) {
+            EnPasser enemyEnPasser = br.restoreEnPasser(color);
             if (enemyEnPasser != null && enemyEnPasser.intermediateSquare.equals(moveMeta.destSquare)) {
                 moveMeta.enPasserTaker = EnPassant.whoIsEnPasserTaker(enemyEnPasser.taker, moveMeta);
                 if (moveMeta.enPasserTaker == null) return null;
-                return br.getPiece(moveMeta.enPasserTaker);
+                return br.piece(moveMeta.enPasserTaker);
             }
         }
 
-        return ar.getPiece(moveMeta, br);
+        return Arbiter.getPiece(moveMeta, br);
     }
 
 }

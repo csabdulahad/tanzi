@@ -1,26 +1,26 @@
 package tanzi.model;
 
-/*
+import tanzi.pool.PiecePool;
+
+/**
  * The data structure for representing a piece. A fully described piece including its position on the
  * board, previous square, whether it has moved or not and so on.
- *
- * For determining square index, it uses BoardRegistry class to find it. There is a static app.database.helper
+ * <p>
+ * For determining square index, it uses BoardRegistry class to find it. There is a static helper
  * method to clone itself.
- * */
-
-import tanzi.pool.PiecePool;
+ */
 
 public class Piece {
 
     public static final int COLOR_WHITE = 0;
     public static final int COLOR_BLACK = 1;
 
-    public static final int PIECE_KING = 0;
-    public static final int PIECE_QUEEN = 1;
-    public static final int PIECE_ROOK = 2;
-    public static final int PIECE_BISHOP = 3;
-    public static final int PIECE_KNIGHT = 4;
-    public static final int PIECE_PAWN = 5;
+    public static final int KING = 0;
+    public static final int QUEEN = 1;
+    public static final int ROOK = 2;
+    public static final int BISHOP = 3;
+    public static final int KNIGHT = 4;
+    public static final int PAWN = 5;
 
     public int color = -1;
     public int type = -1;
@@ -40,8 +40,10 @@ public class Piece {
     }
 
     public static Piece clone(Piece piece) {
+        if (piece == null) return null;
+
         // get a piece from piece app.pool which will clone the passed piece
-        Piece clonedPiece = PiecePool.getInstance().get();
+        Piece clonedPiece = PiecePool.get();
 
         // set values
         clonedPiece.type = piece.type;
@@ -67,41 +69,41 @@ public class Piece {
         this.previousSquare = previousSquare;
     }
 
-    public String getCurrentSquare() {
+    public String currentSquare() {
         return currentSquare;
     }
 
-    public String getPreviousSquare() {
+    public String previousSquare() {
         return previousSquare == null ? currentSquare : previousSquare;
     }
 
     public int getRank() {
-        return Square.getRankAsInt(currentSquare);
+        return Square.rankAsInt(currentSquare);
     }
 
     public char getFile() {
-        return Square.getFileAsChar(currentSquare);
+        return Square.fileAsChar(currentSquare);
     }
 
     public static int getType(char piece) {
         return switch (piece) {
-            case 'K' -> PIECE_KING;
-            case 'Q' -> PIECE_QUEEN;
-            case 'R' -> PIECE_ROOK;
-            case 'B' -> PIECE_BISHOP;
-            case 'N' -> PIECE_KNIGHT;
+            case 'K' -> KING;
+            case 'Q' -> QUEEN;
+            case 'R' -> ROOK;
+            case 'B' -> BISHOP;
+            case 'N' -> KNIGHT;
             case 'O' -> -1;
-            default -> PIECE_PAWN;
+            default -> PAWN;
         };
     }
 
     public static char getShortName(int type, char file) {
         return switch (type) {
-            case PIECE_KING -> 'K';
-            case PIECE_QUEEN -> 'Q';
-            case PIECE_ROOK -> 'R';
-            case PIECE_BISHOP -> 'B';
-            case PIECE_KNIGHT -> 'N';
+            case KING -> 'K';
+            case QUEEN -> 'Q';
+            case ROOK -> 'R';
+            case BISHOP -> 'B';
+            case KNIGHT -> 'N';
             default -> file;
         };
     }
@@ -110,18 +112,19 @@ public class Piece {
         return String.valueOf(getShortName(type, getFile()));
     }
 
-    public static String getFullName(int type) {
+    public static String fullName(int type) {
         return switch (type) {
-            case PIECE_KING -> "King";
-            case PIECE_QUEEN -> "Queen";
-            case PIECE_ROOK -> "Rook";
-            case PIECE_BISHOP -> "Bishop";
-            case PIECE_KNIGHT -> "Knight";
+            case -1 -> "Unknown";
+            case KING -> "King";
+            case QUEEN -> "Queen";
+            case ROOK -> "Rook";
+            case BISHOP -> "Bishop";
+            case KNIGHT -> "Knight";
             default -> "Pawn";
         };
     }
 
-    public static String getColorName(int color) {
+    public static String colorName(int color) {
         return color == COLOR_WHITE ? "white" : "black";
     }
 
@@ -134,27 +137,27 @@ public class Piece {
     }
 
     public boolean isKing() {
-        return type == PIECE_KING;
+        return type == KING;
     }
 
     public boolean isQueen() {
-        return type == PIECE_QUEEN;
+        return type == QUEEN;
     }
 
     public boolean isRook() {
-        return type == PIECE_ROOK;
+        return type == ROOK;
     }
 
     public boolean isBishop() {
-        return type == PIECE_BISHOP;
+        return type == BISHOP;
     }
 
     public boolean isKnight() {
-        return type == PIECE_KNIGHT;
+        return type == KNIGHT;
     }
 
     public boolean isPawn() {
-        return type == PIECE_PAWN;
+        return type == PAWN;
     }
 
     public boolean isWhite() {

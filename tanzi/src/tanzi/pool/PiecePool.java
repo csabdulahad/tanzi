@@ -1,11 +1,11 @@
 package tanzi.pool;
 
-/*
- * this app.pool class for piece really reduces object initialization and redundant piece objects.
- * */
-
 import tanzi.model.Piece;
 import tanzi.pool.meta.PieceMeta;
+
+/**
+ * this pool class for piece really reduces object initialization and redundant piece objects.
+ */
 
 public class PiecePool extends PoolFactory<Piece> {
 
@@ -24,12 +24,12 @@ public class PiecePool extends PoolFactory<Piece> {
     }
 
     @Override
-    public Piece get() {
+    public Piece getObj() {
         PieceMeta.request();
         int size = pool.size();
 
         if (size == 0) {
-            return createObject();
+            return createObj();
         } else {
             PieceMeta.hit();
             return pool.remove(size - 1);
@@ -37,7 +37,7 @@ public class PiecePool extends PoolFactory<Piece> {
     }
 
     @Override
-    public void recycle(Piece piece) {
+    public void recycleObj(Piece piece) {
         PieceMeta.recycleRequest();
 
         if (pool.size() >= poolSize) {
@@ -55,9 +55,16 @@ public class PiecePool extends PoolFactory<Piece> {
         PieceMeta.recycled();
     }
 
+    public static Piece get() {
+        return PiecePool.getInstance().getObj();
+    }
+
+    public static void recycle(Piece piece) {
+        PiecePool.getInstance().recycleObj(piece);
+    }
 
     @Override
-    public Piece createObject() {
+    public Piece createObj() {
         PieceMeta.created();
         return new Piece();
     }

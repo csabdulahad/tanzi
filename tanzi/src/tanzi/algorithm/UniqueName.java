@@ -1,41 +1,40 @@
 package tanzi.algorithm;
 
-/*
- * each move in PGN(Portal Game Notation) must be represented in unambiguous manner so that it
- * doesn't confuse both the human and computer for later analysis or recording the game.
- *
- * this class captures those related methods which can calculate unique names for moves if necessary
- * based on the situation of the game and the move played. for any unique name situation, there at
- * max pieces can collide with each other either in 2, 3 or more than 3 in quantity.
- *
- * algorithms here in this class optimize the number of checks by finding association between source
- * and destination square and how many pieces of the same type need to be considered in calculating
- * unique name.
- *
- * HalfDiscarding algorithm (which uses association technique) can only be applied to in calculating
- * unique name for rooks. on the other hand, Bidirectional algorithm can be applied to queen, bishop,
- * knight as they can be more than 2 or 3 in number.
- *
- * algorithms use various methods from Geometry Engineer class such as
- *      possibleSidewaysTo,
- *      possibleDiagonalTo(for queen and bishop),
- *      possibleKnightTo,
- *      getUnique(for what is unique in square name. is it file or rank?)
- *      countAlong(how many pieces of specified type along a specified side/direction),
- *      associationSideways(how two squares linked with each other. by file or rank?).
- *
- * */
-
 import tanzi.model.Piece;
-import tanzi.staff.Arbiter;
 import tanzi.staff.BoardRegistry;
-import tanzi.staff.GeometryEngineer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static tanzi.staff.GeometryEngineer.BY_FILE;
-import static tanzi.staff.GeometryEngineer.BY_RANK;
+import static tanzi.algorithm.GeometryEngineer.BY_FILE;
+import static tanzi.algorithm.GeometryEngineer.BY_RANK;
+
+/**
+ * each move in PGN(Portal Game Notation) must be represented in unambiguous manner so that it
+ * doesn't confuse both the human and computer for later analysis or recording the game.
+ * <p>
+ * this class captures those related methods which can calculate unique names for moves if necessary
+ * based on the situation of the game and the move played. for any unique name situation, there at
+ * max pieces can collide with each other either in 2, 3 or more than 3 in quantity.
+ * <p>
+ * algorithms here in this class optimize the number of checks by finding association between source
+ * and destination square and how many pieces of the same type need to be considered in calculating
+ * unique name.
+ * <p>
+ * HalfDiscarding algorithm (which uses association technique) can only be applied to in calculating
+ * unique name for rooks. on the other hand, Bidirectional algorithm can be applied to queen, bishop,
+ * knight as they can be more than 2 or 3 in number.
+ * <p>
+ * algorithms use various methods from Geometry Engineer class such as
+ * <ul>
+ * <li>possibleSidewaysTo</li>
+ * <li>possibleDiagonalTo(for queen and bishop)</li>
+ * <li>possibleKnightTo</li>
+ * <li>getUnique(for what is unique in square name. is it file or rank?)</li>
+ * <li>countAlong(how many pieces of specified type along a specified side/direction)</li>
+ * <li>associationSideways(how two squares linked with each other. by file or rank?)</li>
+ * </ul>
+ */
 
 public abstract class UniqueName {
 
@@ -44,16 +43,12 @@ public abstract class UniqueName {
      * to calculate unique name then it returns null or for pawn and king; returns empty string for
      * unnecessary unique name.
      */
-    public static String getUniqueName(int type, int color, String srcSquare, String destSquare, Arbiter ar, BoardRegistry br) {
+    public static String getUniqueName(int type, int color, String srcSquare, String destSquare, BoardRegistry br) {
         return switch (type) {
-            case Piece.PIECE_QUEEN ->
-                    getBidirectionalUniqueName(Piece.PIECE_QUEEN, color, srcSquare, destSquare, ar, br);
-            case Piece.PIECE_ROOK ->
-                    getHalfDiscardingUniqueName(Piece.PIECE_ROOK, color, srcSquare, destSquare, ar, br);
-            case Piece.PIECE_BISHOP ->
-                    getBidirectionalUniqueName(Piece.PIECE_BISHOP, color, srcSquare, destSquare, ar, br);
-            case Piece.PIECE_KNIGHT ->
-                    getBidirectionalUniqueName(Piece.PIECE_KNIGHT, color, srcSquare, destSquare, ar, br);
+            case Piece.QUEEN -> getBidirectionalUniqueName(Piece.QUEEN, color, srcSquare, destSquare, br);
+            case Piece.ROOK -> getHalfDiscardingUniqueName(Piece.ROOK, color, srcSquare, destSquare, br);
+            case Piece.BISHOP -> getBidirectionalUniqueName(Piece.BISHOP, color, srcSquare, destSquare, br);
+            case Piece.KNIGHT -> getBidirectionalUniqueName(Piece.KNIGHT, color, srcSquare, destSquare, br);
             default -> null;
         };
     }
@@ -69,28 +64,28 @@ public abstract class UniqueName {
      * <p>
      * for further clarification, look for BIDIRECTIONAL algorithm within this project.
      */
-    private static String getBidirectionalUniqueName(int type, int color, String srcSquare, String destSquare, Arbiter ar, BoardRegistry br) {
+    private static String getBidirectionalUniqueName(int type, int color, String srcSquare, String destSquare, BoardRegistry br) {
         ArrayList<String> squareList = null;
 
         // get list of squares containing the same type of piece that can make move to destSquare
 
-        if (type == Piece.PIECE_QUEEN) {
+        if (type == Piece.QUEEN) {
             /* for queen, we know that, it can play like rook & bishop, so calculate possible queen
              * coming squares for both sideways & diagonal squares
              * */
-            squareList = GeometryEngineer.possibleSidewaysTo(destSquare, Piece.PIECE_QUEEN, color, br);
-            squareList.addAll(GeometryEngineer.possibleDiagonalTo(destSquare, Piece.PIECE_QUEEN, color, br));
+            squareList = GeometryEngineer.possibleSidewaysTo(destSquare, Piece.QUEEN, color, br);
+            squareList.addAll(GeometryEngineer.possibleDiagonalTo(destSquare, Piece.QUEEN, color, br));
         }
 
-        if (type == Piece.PIECE_BISHOP)
+        if (type == Piece.BISHOP)
             squareList = GeometryEngineer.possibleDiagonalTo(destSquare, type, color, br);
 
-        if (type == Piece.PIECE_KNIGHT)
+        if (type == Piece.KNIGHT)
             squareList = GeometryEngineer.possibleKnightTo(destSquare, color, br);
 
         if (squareList == null) return null;
 
-        discardPinnedPiece(destSquare, squareList, ar, br);
+        discardPinnedPiece(destSquare, squareList, br);
 
         squareList.remove(srcSquare);
 
@@ -145,7 +140,7 @@ public abstract class UniqueName {
      * USAGE : this algorithm is particularly applicable for figuring rook unique name. other
      * applications are unknown.
      */
-    private static String getHalfDiscardingUniqueName(int type, int color, String srcSquare, String destSquare, Arbiter ar, BoardRegistry br) {
+    private static String getHalfDiscardingUniqueName(int type, int color, String srcSquare, String destSquare, BoardRegistry br) {
 
         /* HALF-DISCARDING ALGORITHM :
          * 1. first we acquire a list of squares of given piece of the army that can go the dest square
@@ -160,7 +155,7 @@ public abstract class UniqueName {
         // step 1
         ArrayList<String> possiblePieceSquare = GeometryEngineer.possibleSidewaysTo(destSquare, type, color, br);
 
-        discardPinnedPiece(destSquare, possiblePieceSquare, ar, br);
+        discardPinnedPiece(destSquare, possiblePieceSquare, br);
 
         // step 2
         possiblePieceSquare.remove(srcSquare);
@@ -185,10 +180,10 @@ public abstract class UniqueName {
     // for a list of squares of potential pieces , they can be pinned or have some
     // way of restriction to make the move. let's check for it. we will discard those
     // who are pinned.
-    private static void discardPinnedPiece(String destSquare, List<String> possibleSquareListToDest, Arbiter ar, BoardRegistry br) {
+    private static void discardPinnedPiece(String destSquare, List<String> possibleSquareListToDest, BoardRegistry br) {
         ArrayList<String> bufferedList = new ArrayList<>(possibleSquareListToDest);
         for (String square : bufferedList)
-            if (!ar.pieceCanGo(square, destSquare, true, br))
+            if (!Arbiter.pieceCanGo(square, destSquare, true, br))
                 possibleSquareListToDest.remove(square);
     }
 

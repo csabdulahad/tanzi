@@ -1,12 +1,18 @@
-package tanzi.staff;
+package tanzi.algorithm;
 
-import tanzi.algorithm.SquareFilter;
 import tanzi.model.Piece;
 import tanzi.model.Square;
+import tanzi.staff.BoardRegistry;
 
 import java.util.ArrayList;
 
-public class GeometryEngineer {
+/**
+ * Each piece movements by chess rules are calculated by GeometryEngineer. This class knows
+ * how a piece moves given the square the piece is on. No chess rules validation are performed
+ * on the movements calculated by GeometryEngineer.
+ */
+
+public abstract class GeometryEngineer {
 
     // constants are used for representing directions for calculating association, counting etc.
     public static final int BY_FILE = 0;
@@ -27,11 +33,11 @@ public class GeometryEngineer {
      * */
     public static ArrayList<String> validSquare(int type, int color, String currentSquare, boolean armyCheck, BoardRegistry br) {
         return switch (type) {
-            case Piece.PIECE_KING -> kingSquare(currentSquare, color, armyCheck, br);
-            case Piece.PIECE_QUEEN -> queenSquare(currentSquare, color, armyCheck, br);
-            case Piece.PIECE_ROOK -> rookSquare(currentSquare, color, armyCheck, br);
-            case Piece.PIECE_BISHOP -> bishopSquare(currentSquare, color, armyCheck, br);
-            case Piece.PIECE_KNIGHT -> knightSquare(currentSquare, color, armyCheck, br);
+            case Piece.KING -> kingSquare(currentSquare, color, armyCheck, br);
+            case Piece.QUEEN -> queenSquare(currentSquare, color, armyCheck, br);
+            case Piece.ROOK -> rookSquare(currentSquare, color, armyCheck, br);
+            case Piece.BISHOP -> bishopSquare(currentSquare, color, armyCheck, br);
+            case Piece.KNIGHT -> knightSquare(currentSquare, color, armyCheck, br);
             default -> pawnSquare(currentSquare, color, br);
         };
     }
@@ -441,8 +447,8 @@ public class GeometryEngineer {
 
         ArrayList<String> alignedSquares = new ArrayList<>();
 
-        char file = Square.getFileAsChar(kingSquare);
-        int rank = Square.getRankAsInt(kingSquare);
+        char file = Square.fileAsChar(kingSquare);
+        int rank = Square.rankAsInt(kingSquare);
 
         // get the top squares
         alignedSquares.add(OS_SEPARATOR);
@@ -588,8 +594,8 @@ public class GeometryEngineer {
      * coordinate in string notation like c4 to g5 where rank step is +1 and file step is +4
      * */
     public static String getSquareAt(String from, int fileStep, int rankStep) {
-        char inputFile = Square.getFileAsChar(from);
-        char inputRank = Square.getRankAsChar(from);
+        char inputFile = Square.fileAsChar(from);
+        char inputRank = Square.rankAsChar(from);
 
         char destFile = (char) (inputFile + fileStep);
         char destRank = (char) (inputRank + rankStep);
@@ -609,8 +615,8 @@ public class GeometryEngineer {
      * relationship then it returns -1.
      */
     public static int associationSideways(String squareA, String squareB) {
-        if (Square.getFileAsChar(squareA) - Square.getFileAsChar(squareB) == 0) return BY_FILE;
-        if (Square.getRankAsChar(squareA) - Square.getRankAsChar(squareB) == 0) return BY_RANK;
+        if (Square.fileAsChar(squareA) - Square.fileAsChar(squareB) == 0) return BY_FILE;
+        if (Square.rankAsChar(squareA) - Square.rankAsChar(squareB) == 0) return BY_RANK;
         return -1;
     }
 
@@ -636,11 +642,11 @@ public class GeometryEngineer {
      * if there is no difference found then it returns null.
      */
     public static String getUnique(String a, String b) {
-        if (Square.getFileAsChar(a) - Square.getFileAsChar(b) != 0)
-            return Square.getFileAsString(a);
+        if (Square.fileAsChar(a) - Square.fileAsChar(b) != 0)
+            return Square.fileAsStr(a);
 
-        if (Square.getRankAsChar(a) - Square.getRankAsChar(b) != 0)
-            return Square.getRankAsString(a);
+        if (Square.rankAsChar(a) - Square.rankAsChar(b) != 0)
+            return Square.rankAsStr(a);
 
         return null;
     }

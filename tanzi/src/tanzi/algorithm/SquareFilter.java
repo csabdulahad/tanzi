@@ -6,12 +6,12 @@ import tanzi.staff.BoardRegistry;
 
 import java.util.List;
 
-/*
+/**
  * this class has methods that filter squares for selections such as when considering a possible
  * coming square or destination square for a piece type it can validate that.
- * */
+ */
 
-public class SquareFilter {
+public abstract class SquareFilter {
 
     /**
      * this filter method evaluates whether a square can be appropriate for one of the destination
@@ -33,7 +33,7 @@ public class SquareFilter {
 
         if (ownArmyCheck && br.killingOwnArmy(square, color)) return true;
 
-        Piece piece = br.getPiece(square);
+        Piece piece = br.piece(square);
         if (piece != null && piece.color != color) {
             // we hit an enemy piece for the square; say we can take upon him; and return true
             // for blocking further look-up alongside/diagonal by Geometry Engineer
@@ -74,7 +74,7 @@ public class SquareFilter {
         if (square == null) return true;
 
         // we have a square to calculate. let's see whether there is any piece on the square
-        Piece piece = br.getPiece(square);
+        Piece piece = br.piece(square);
 
         // for now along the given diagonal/side we haven't found any piece; maybe we can find it next time
         if (piece == null) return false;
@@ -99,8 +99,8 @@ public class SquareFilter {
     public static void filterPossibleKnightSquareToFocusSquare(int color, String square, List<String> squareList, BoardRegistry br) {
         if (!br.anyPieceOn(square)) return;
 
-        Piece piece = br.getPiece(square);
-        if (piece.color == color && piece.type == Piece.PIECE_KNIGHT) squareList.add(square);
+        Piece piece = br.piece(square);
+        if (piece.color == color && piece.type == Piece.KNIGHT) squareList.add(square);
     }
 
 }

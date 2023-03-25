@@ -1,7 +1,6 @@
 package tanzi.algorithm;
 
 import tanzi.model.Piece;
-import tanzi.staff.Arbiter;
 import tanzi.staff.BoardRegistry;
 import tanzi.staff.BufferedBR;
 
@@ -9,7 +8,7 @@ import java.util.ArrayList;
 
 public abstract class Pin {
 
-    public static boolean isPinned(String from, String to, Arbiter ar, BoardRegistry br) {
+    public static boolean isPinned(String from, String to, BoardRegistry br) {
 
         /*
          * PIN DETECTION ALGORITHM USING BOARD-REGISTRY
@@ -26,17 +25,17 @@ public abstract class Pin {
          * */
 
         // get a buffered copy of the BR
-        BufferedBR bufferedBR = br.getCopy();
+        BufferedBR bufferedBR = br.copy();
 
         // find the king's position of color of the piece on the srcSquare
-        Piece srcPiece = bufferedBR.getPiece(from);
-        Piece kingPiece = bufferedBR.getPiece(Piece.PIECE_KING, srcPiece.color);
+        Piece srcPiece = bufferedBR.piece(from);
+        Piece kingPiece = bufferedBR.piece(Piece.KING, srcPiece.color);
 
         // step 1 - first make that destination move in the board registry TEMPORARILY
-        bufferedBR.deleteEntry(to);
-        bufferedBR.deleteEntry(srcPiece.getCurrentSquare());
+        bufferedBR.delete(to);
+        bufferedBR.delete(srcPiece.currentSquare());
         srcPiece.setCurrentSquare(to);
-        bufferedBR.addEntry(srcPiece);
+        bufferedBR.add(srcPiece);
 
         /*
          * now see from the king's prospective whether any piece of enemy can reach the king's square
@@ -55,7 +54,7 @@ public abstract class Pin {
 
         boolean pin = false;
         for (String alignedSquare : squaresAlignedWithKing) {
-            Piece piece = bufferedBR.getPiece(alignedSquare);
+            Piece piece = bufferedBR.piece(alignedSquare);
 
             // empty square where there is no piece so ignore it but go ahead
             if (piece == null) continue;
@@ -64,7 +63,7 @@ public abstract class Pin {
             if (piece.color == srcPiece.color) continue;
 
             // got an enemy piece, let's see whether it can attack the opposite king
-            if (ar.pieceCanGo(piece.getCurrentSquare(), kingPiece.getCurrentSquare(), false, bufferedBR)) {
+            if (Arbiter.pieceCanGo(piece.currentSquare(), kingPiece.currentSquare(), false, bufferedBR)) {
                 pin = true;
                 break;
             }

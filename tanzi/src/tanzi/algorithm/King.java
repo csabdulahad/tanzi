@@ -3,21 +3,19 @@ package tanzi.algorithm;
 import tanzi.model.MoveMeta;
 import tanzi.model.Piece;
 import tanzi.model.Square;
-import tanzi.staff.Arbiter;
 import tanzi.staff.BoardRegistry;
 import tanzi.staff.BufferedBR;
-import tanzi.staff.GeometryEngineer;
 
 import java.util.ArrayList;
 
 public abstract class King {
 
-    public static boolean canGo(String srcSquare, String destSquare, Arbiter ar, BoardRegistry br) {
+    public static boolean canGo(String srcSquare, String destSquare, BoardRegistry br) {
 
-        Piece king = br.getPiece(srcSquare);
+        Piece king = br.piece(srcSquare);
 
         // prove the king move by chess geometry
-        ArrayList<String> validKingSquares = GeometryEngineer.validSquare(king.type, king.color, king.getCurrentSquare(), true, br);
+        ArrayList<String> validKingSquares = GeometryEngineer.validSquare(king.type, king.color, king.currentSquare(), true, br);
         if (!validKingSquares.contains(destSquare)) return false;
 
         // then see whether there is KingKingClash on the destination square
@@ -28,16 +26,16 @@ public abstract class King {
         // any enemy piece if any. then see whether the king is safe there. if so then the
         // king can go to the destination square otherwise not.
 
-        BufferedBR bufferedBR = br.getCopy();
+        BufferedBR bufferedBR = br.copy();
 
         // if it is an enemy piece on the destination square then remove it
-        bufferedBR.deleteEntry(destSquare);
+        bufferedBR.delete(destSquare);
 
         // make the king move
         king = bufferedBR.movePiece(srcSquare, destSquare);
 
         // after king made the move, let's see whether the king can be attacked there
-        boolean canGo = Arbiter.amISafe(king.color, king.getCurrentSquare(), ar, bufferedBR);
+        boolean canGo = Arbiter.amISafe(king.color, king.currentSquare(), bufferedBR);
 
         bufferedBR.recycle();
         return canGo;
@@ -54,25 +52,25 @@ public abstract class King {
      *
      * for short castle the file argument must be "g" and for long castle it must be "c".
      * */
-    public static int canCastle(int fromIndex, int toIndex, Arbiter ar, BoardRegistry br) {
+    public static int canCastle(int fromIndex, int toIndex, BoardRegistry br) {
 
-        BufferedBR bufferedBR = br.getCopy();
+        BufferedBR bufferedBR = br.copy();
 
         String kingSquare = Square.forIndex(fromIndex);
         String destSquare = Square.forIndex(toIndex);
 
         if (destSquare == null) return -1;
 
-        Piece king = bufferedBR.getPiece(kingSquare);
+        Piece king = bufferedBR.piece(kingSquare);
         int kingColor = king.color;
-        char file = Square.getFileAsChar(destSquare);
+        char file = Square.fileAsChar(destSquare);
 
         // king already made move previously so return -1 to say we can't have a castle move
         if (king.hasMoved()) return -1;
 
         String rookSquare = getRookSquare(file, kingColor);
         if (rookSquare == null) return -1;
-        Piece rook = bufferedBR.getPiece(rookSquare);
+        Piece rook = bufferedBR.piece(rookSquare);
         /*
          * if no rook found there then the rook has moved somewhere which concludes that it can't be
          * castled or if the rook was found at position but the has move as it hasMoved says so.
@@ -92,11 +90,11 @@ public abstract class King {
         String[] squareBetweenKingRook = getSquareInKingRook(passingRank, file);
         for (String square : squareBetweenKingRook) if (bufferedBR.anyPieceOn(square)) return -1;
 
-        ArrayList<String> validKingSquare = GeometryEngineer.validSquare(Piece.PIECE_KING, kingColor, kingSquare, true, bufferedBR);
+        ArrayList<String> validKingSquare = GeometryEngineer.validSquare(Piece.KING, kingColor, kingSquare, true, bufferedBR);
         if (!validKingSquare.contains(passingSquare)) return -1;
 
         // check for passing via square first
-        boolean kingCanGo = canGo(kingSquare, passingSquare, ar, bufferedBR);
+        boolean kingCanGo = canGo(kingSquare, passingSquare, bufferedBR);
         if (!kingCanGo) return -1;
 
         /*
@@ -107,7 +105,7 @@ public abstract class King {
         bufferedBR.movePiece(kingSquare, passingSquare);
         bufferedBR.updateOSSquare(kingColor, passingSquare);
 
-        kingCanGo = canGo(passingSquare, destSquare, ar, bufferedBR);
+        kingCanGo = canGo(passingSquare, destSquare, bufferedBR);
 
         int result = 0;
         if (!kingCanGo) result = -1;
@@ -119,8 +117,8 @@ public abstract class King {
         return result == -1 ? result : (file == 'g' ? 1 : 2);
     }
 
-    public static int canCastle(String from, String to, Arbiter arbiter, BoardRegistry br) {
-        return canCastle(Square.index(from), Square.index(to), arbiter, br);
+    public static int canCastle(String from, String to, BoardRegistry br) {
+        return canCastle(Square.index(from), Square.index(to), br);
     }
 
     /*
@@ -198,18 +196,18 @@ public abstract class King {
         }
 
         // if rook has moved then return -1
-        if (br.getPiece(whichRook).hasMoved()) return -1;
+        if (br.piece(whichRook).hasMoved()) return -1;
 
         return castleType;
     }
 
-    /*
+    /**
      * this method for given move meta can return the dest square for both the king and the rook
      * based on their current squares and the destination squares.
-     *
+     * <p>
      * the returned array looks like the following:
      * [currentKingSquare, currentRookSquare, destKingSquare, destRookSquare]
-     * */
+     */
     public static String[] getCastleMeta(MoveMeta moveMeta) {
 
         // king-rook current file
@@ -253,7 +251,7 @@ public abstract class King {
         int count = 0;
         for (String octalSquare : octalSquareList) {
             // figure out whether the piece is empty
-            Piece piece = br.getPiece(octalSquare);
+            Piece piece = br.piece(octalSquare);
             if (piece == null) continue;
 
             // make sure the piece is a king

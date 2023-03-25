@@ -1,23 +1,23 @@
 package tanzi.model;
 
-import tanzi.staff.GeometryEngineer;
+import tanzi.algorithm.GeometryEngineer;
 
 import java.util.ArrayList;
 
-/*
- * the squares that are aligned with the king square are very crucial in order to detect pin,
+/**
+ * The squares that are aligned with the king square are very crucial in order to detect pin,
  * discover attack, check, checkmate, illegal moves and so on. this class abstracts those functions
  * to provide more clear understanding and clarity. since around a piece there are eight piece
  * hence it gets the name OctalSquare, and it is also known as 'OS' within the project.
- *
- * this OS is also helpful for other piece. we may find situation where we want to see if a
+ * <p>
+ * This OS is also helpful for other piece. we may find situation where we want to see if a
  * piece can be attacked from the Eight-Squares.
- *
- * when you create an instance of this class, it calculates OS for the square you pass in the
+ * <p>
+ * When you create an instance of this class, it calculates OS for the square you pass in the
  * constructor eagerly. for king, each time the king moves, this method subsequently needs to be
  * called. we are using greedy algorithm to avoid calculation over & over for the king after
  * each move on the board to calculate pin, discover attack etc.
- * */
+ */
 
 public class OctalSquare {
 

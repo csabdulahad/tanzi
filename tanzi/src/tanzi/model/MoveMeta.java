@@ -1,18 +1,16 @@
 package tanzi.model;
 
-/*
- * a data structure for holding information about the moves as they are made on the board in order to
+/**
+ * A data structure for holding information about the moves as they are made on the board in order to
  * be able to do undo, backward, forward move.
- *
+ * <p>
  * this class also holds information about castle, promotion, check or checkmate status by the move.
- * */
+ */
 
 public class MoveMeta {
 
-    // properties for debugging purpose
-    public String pgn;
-    public int puzzleSet;
-    public int pgnIndex;
+    // which identifies the move within the game so that we can calculate whether it is white or black
+    // to move
     public int moveIndex;
 
     // move properties
@@ -20,7 +18,6 @@ public class MoveMeta {
     public String move;
     public String normalizedMove = null;
     public int color = -1;
-    public int moveIndexInPGN = -1;
 
     // desired properties
     public String destSquare = null;
@@ -72,8 +69,28 @@ public class MoveMeta {
 
     @Override
     public String toString() {
-        return "\n" + move + " > MoveMeta : color(" + Piece.getColorName(color) + "), move(" + move + "), normalizedMove(" + normalizedMove + "), type(" + Piece.getFullName(type) + ")\nsimpleMove(" + simpleMove + "), takes(" + takes + "), destSquare(" + destSquare +
-                ")\npromotion(" + promotion + "), to(" + promoteType + ")\nuniqueName(" + uniqueName + "), uniqueFile(" + uniqueFile + "), uniqueFileName(" + (uniqueFileName == Character.MIN_VALUE ? "-1" : uniqueFileName) + "), uniqueRank(" + uniqueRank + "), uniqueRankName(" + uniqueRankName + "), uniqueSquare(" + uniqueSquare + "), uniqueSquareName(" + uniqueSquareName + ")\ncastle(" + castle + "), shortCastle(" + shortCastle + "), longCastle(" + longCastle + ")";
+        return String.format(
+                """
+                        MoveMeta:           %s
+                        moveIndex:          %d
+                        normalizedMove:     %s
+                        piece:              %s %s
+                        simpleMove:         %s
+                        destSquare:         %s
+                        takes:              %s
+                        castle:             %s
+                        shortCastle:        %s
+                        longCastle:         %s
+                        promotion:          %s to %s
+                        uniqueName:         %s
+                        uniqueFile:         %s \tuniqueFileName: \t\t%s
+                        uniqueRank:         %s \tuniqueRankName: \t\t%s
+                        uniqueSquare:       %s \tuniqueSquareName: \t\t%s
+                """,
+                move, moveIndex, normalizedMove, Piece.colorName(color), Piece.fullName(type), simpleMove, destSquare,
+                takes, castle, shortCastle, longCastle, promotion, Piece.fullName(promoteType),
+                uniqueName, uniqueFile, uniqueFileName, uniqueRank, uniqueRankName, uniqueSquare, uniqueSquareName
+        );
     }
 
     public MoveMeta copy() {

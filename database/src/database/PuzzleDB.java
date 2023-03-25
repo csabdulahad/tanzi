@@ -87,7 +87,7 @@ public class PuzzleDB {
                 break;
             }
         }
-        benchmarker.benchmark("Puzzle set insertion time");
+        benchmarker.log("Puzzle set insertion time");
     }
 
 }

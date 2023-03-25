@@ -2,10 +2,11 @@ package tanzi.model;
 
 import java.util.Arrays;
 
-/*
-* POJO for capturing the meta info of an en-passer so that on next move
-* enemy can be able to capture it.
-* */
+/**
+ * POJO for capturing the meta info of an en-passer so that on next move
+ * enemy can be able to capture it. It contains critical information about the
+ * en-passant move which is very helpful to many algorithm within the engine.
+ */
 
 public class EnPasser {
 

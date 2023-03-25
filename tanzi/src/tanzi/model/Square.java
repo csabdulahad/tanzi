@@ -1,21 +1,26 @@
 package tanzi.model;
 
+import tanzi.app.Board;
+
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * this class holds square of a chess board. each square is associated with a square name and index
+/**
+ * This class holds square of a chess board. Each square is associated with a square name and index
  * number. a8 is the 1st square, b8 is the 2nd square and so on.
- * */
+ */
 public abstract class Square {
+
+    // useful easy indexing with squares
+
+    public static final int C3 = 43;
+    public static final int E1 = 61;
+    public static final int E8 = 5;
 
     // square-index translation map/table
     public static final HashMap<String, Integer> indexSquareWhite;
 
     private static final HashMap<String, Integer> indexSquareBlack;
-
-    public static final int ORIENTATION_BLACK = 1;
-    public static final int ORIENTATION_WHITE = 0;
 
     static {
         indexSquareBlack = new HashMap<>(64);
@@ -156,9 +161,9 @@ public abstract class Square {
         return indexSquareWhite.get(square);
     }
 
-    public static int index(String square, int orientation) {
+    public static int index(String square, Board.Orientation orientation) {
         if (!indexSquareWhite.containsKey(square)) return -1;
-        HashMap<String, Integer> map = orientation == ORIENTATION_WHITE ? indexSquareWhite : indexSquareBlack;
+        HashMap<String, Integer> map = orientation == Board.Orientation.White ? indexSquareWhite : indexSquareBlack;
         return map.get(square);
     }
 
@@ -170,98 +175,33 @@ public abstract class Square {
         return null;
     }
 
-    public static String getFileAsString(String square) {
+    public static String forIndex(int index, Board.Orientation orientation) {
+        HashMap<String, Integer> map = orientation == Board.Orientation.White ? indexSquareWhite : indexSquareBlack;
+        if (!map.containsValue(index)) return null;
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (entry.getValue() == index) return entry.getKey();
+        }
+        return null;
+    }
+
+    public static String fileAsStr(String square) {
         return String.valueOf(square.charAt(0));
     }
 
-    public static char getFileAsChar(String square) {
+    public static char fileAsChar(String square) {
         return square.charAt(0);
     }
 
-    public static int getRankAsInt(String square) {
+    public static int rankAsInt(String square) {
         return Character.getNumericValue(square.charAt(1));
     }
 
-    public static char getRankAsChar(String square) {
+    public static char rankAsChar(String square) {
         return square.charAt(1);
     }
 
-    public static String getRankAsString(String square) {
+    public static String rankAsStr(String square) {
         return String.valueOf(square.charAt(1));
     }
-
-    // useful easy indexing with squares
-
-    public static final int A1 = 57;
-    public static final int A2 = 49;
-    public static final int A3 = 41;
-    public static final int A4 = 33;
-    public static final int A5 = 25;
-    public static final int A6 = 17;
-    public static final int A7 = 9;
-    public static final int A8 = 1;
-
-    public static final int B1 = 58;
-    public static final int B2 = 50;
-    public static final int B3 = 42;
-    public static final int B4 = 34;
-    public static final int B5 = 26;
-    public static final int B6 = 18;
-    public static final int B7 = 10;
-    public static final int B8 = 2;
-
-    public static final int C1 = 59;
-    public static final int C2 = 51;
-    public static final int C3 = 43;
-    public static final int C4 = 35;
-    public static final int C5 = 27;
-    public static final int C6 = 19;
-    public static final int C7 = 11;
-    public static final int C8 = 3;
-
-    public static final int D1 = 60;
-    public static final int D2 = 52;
-    public static final int D3 = 44;
-    public static final int D4 = 36;
-    public static final int D5 = 28;
-    public static final int D6 = 20;
-    public static final int D7 = 12;
-    public static final int D8 = 4;
-
-    public static final int E1 = 61;
-    public static final int E2 = 53;
-    public static final int E3 = 45;
-    public static final int E4 = 37;
-    public static final int E5 = 29;
-    public static final int E6 = 21;
-    public static final int E7 = 13;
-    public static final int E8 = 5;
-
-    public static final int F1 = 62;
-    public static final int F2 = 54;
-    public static final int F3 = 46;
-    public static final int F4 = 38;
-    public static final int F5 = 30;
-    public static final int F6 = 22;
-    public static final int F7 = 14;
-    public static final int F8 = 6;
-
-    public static final int G1 = 63;
-    public static final int G2 = 55;
-    public static final int G3 = 47;
-    public static final int G4 = 39;
-    public static final int G5 = 31;
-    public static final int G6 = 23;
-    public static final int G7 = 15;
-    public static final int G8 = 7;
-
-    public static final int H1 = 64;
-    public static final int H2 = 56;
-    public static final int H3 = 48;
-    public static final int H4 = 40;
-    public static final int H5 = 32;
-    public static final int H6 = 24;
-    public static final int H7 = 16;
-    public static final int H8 = 8;
 
 }

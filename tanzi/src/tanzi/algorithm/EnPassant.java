@@ -5,7 +5,6 @@ import tanzi.model.MoveMeta;
 import tanzi.model.Piece;
 import tanzi.model.Square;
 import tanzi.staff.BoardRegistry;
-import tanzi.staff.GeometryEngineer;
 
 import java.util.ArrayList;
 
@@ -26,7 +25,7 @@ public abstract class EnPassant {
     public static String[] getEnPasserTaker(String srcSquare, String destSquare, BoardRegistry br) {
 
         // define the passing piece and its properties
-        Piece piece = br.getPiece(srcSquare);
+        Piece piece = br.piece(srcSquare);
         int color = piece.color;
         int oppositeColor = Piece.getOppositeColor(color);
         int rank = piece.getRank();
@@ -84,7 +83,7 @@ public abstract class EnPassant {
         enPasser.taker = passerTaker;
         enPasser.beforeSquare = srcSquare;
         enPasser.nowSquare = destSquare;
-        enPasser.takerColor = Piece.getOppositeColor(br.getPiece(srcSquare).color);
+        enPasser.takerColor = Piece.getOppositeColor(br.piece(srcSquare).color);
 
         // calculate the intermediate square
         int min = Math.min(Character.getNumericValue(srcSquare.charAt(1)), Character.getNumericValue(destSquare.charAt(1)));
@@ -100,7 +99,7 @@ public abstract class EnPassant {
     public static String whoIsEnPasserTaker(String[] candidateTakerList, MoveMeta moveMeta) {
         if (candidateTakerList.length == 1) return candidateTakerList[0];
         for (String taker : candidateTakerList) {
-            if (Square.getFileAsChar(taker) == Square.getFileAsChar(moveMeta.move)) return taker;
+            if (Square.fileAsChar(taker) == Square.fileAsChar(moveMeta.move)) return taker;
         }
         return null;
     }
@@ -116,8 +115,8 @@ public abstract class EnPassant {
     // for a destination square of pawn and en-passer object, this method can tell if
     // the pawn is really going to take the en-passer or not.
     public static boolean amITakingEnPasser(String myDestSquare, EnPasser enPasser) {
-        String enPasserFile = Square.getFileAsString(enPasser.intermediateSquare);
-        String myFile = Square.getFileAsString(myDestSquare);
+        String enPasserFile = Square.fileAsStr(enPasser.intermediateSquare);
+        String myFile = Square.fileAsStr(myDestSquare);
         return myFile.equals(enPasserFile);
     }
 
@@ -127,7 +126,7 @@ public abstract class EnPassant {
      * */
     private static String checkForSidePawn(String square, int oppositeColor, BoardRegistry boardRegistry) {
         if (square == null) return null;
-        Piece sidePiece = boardRegistry.getPiece(square);
+        Piece sidePiece = boardRegistry.piece(square);
         if (sidePiece == null) return null;
         if (!sidePiece.isPawn()) return null;
         if (sidePiece.color != oppositeColor) return null;

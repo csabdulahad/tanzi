@@ -2,9 +2,9 @@ package tanzi.pool;
 
 import java.util.ArrayList;
 
-/*
- * an implementation of pool factory design pattern.
- * */
+/**
+ * An implementation of pool factory design pattern.
+ */
 
 public abstract class PoolFactory<T> {
 
@@ -16,12 +16,12 @@ public abstract class PoolFactory<T> {
         this.pool = new ArrayList<>(poolSize);
     }
 
-    public T get() {
+    public T getObj() {
         int size = pool.size();
-        return size == 0 ? createObject() : pool.remove(size - 1);
+        return size == 0 ? createObj() : pool.remove(size - 1);
     }
 
-    public void recycle(T object) {
+    public void recycleObj(T object) {
         if (pool.size() >= poolSize) return;
         pool.add(object);
     }
@@ -30,6 +30,6 @@ public abstract class PoolFactory<T> {
         return this.pool.size();
     }
 
-    public abstract T createObject();
+    protected abstract T createObj();
 
 }

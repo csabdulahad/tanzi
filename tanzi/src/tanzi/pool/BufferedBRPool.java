@@ -18,34 +18,41 @@ public class BufferedBRPool extends PoolFactory<BufferedBR> {
     }
 
     @Override
-    public BufferedBR get() {
+    public BufferedBR getObj() {
         BRMeta.request();
         int size = pool.size();
 
         if (size == 0) {
-            return createObject();
+            return createObj();
         } else {
             BRMeta.hit();
-            BufferedBR bufferedBR = pool.remove(size - 1);
-            bufferedBR.__clear();
-            return bufferedBR;
+            return pool.remove(size - 1);
         }
     }
 
     @Override
-    public void recycle(BufferedBR bufferedBR) {
+    public void recycleObj(BufferedBR bufferedBR) {
         BRMeta.recycleRequest();
-        if (pool.size() < poolSize) {
-            bufferedBR.__clear();
-            pool.add(bufferedBR);
-            BRMeta.recycled();
-        } else {
+        if (pool.size() >= poolSize) {
             BRMeta.recycleMissed();
+            return;
         }
+
+        bufferedBR.__clear();
+        pool.add(bufferedBR);
+        BRMeta.recycled();
+    }
+
+    public static void recycle(BufferedBR bbr) {
+        BufferedBRPool.getInstance().recycleObj(bbr);
+    }
+
+    public static BufferedBR get() {
+        return BufferedBRPool.getInstance().getObj();
     }
 
     @Override
-    public BufferedBR createObject() {
+    protected BufferedBR createObj() {
         BRMeta.created();
         return new BufferedBR();
     }

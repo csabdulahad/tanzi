@@ -1,37 +1,35 @@
-package tanzi.staff;
+package tanzi.algorithm;
 
 import tanzi.model.MoveMeta;
 import tanzi.model.Piece;
 
-import java.util.ArrayList;
-
-/*
+/**
  * this class can analyze moves written in PGN format and returns MoveMeta objects after analysis as
- * result. with such a move meta, the app can really understand which pieces are involved in the move
+ * result. with such a move meta, the engine can really understand which pieces are involved in the move
  * and how the game proceeds.
- *
+ * <p>
  * calls to each analysis method must maintain the following order, otherwise the outcome
  * would be incomplete or incorrect.
- *
+ * <p>
  * ORDER OF METHOD CALLS : takeMove > castleMove > promotionMove > uniqueMove > simpleMove
- * */
+ */
 
-public class MoveAnalyzer {
+public abstract class MoveAnalyzer {
 
     private MoveAnalyzer() {
 
     }
 
-    public static MoveMeta analyze(MoveRepo moveRepo) {
-        String move = moveRepo.nextMove();
-
-        MoveMeta moveMeta = analyze(move);
-        moveMeta.color = moveRepo.whoseTurn();
-        moveMeta.moveIndexInPGN = moveRepo.currentIndex();
-
-        return moveMeta;
-    }
-
+    /**
+     * Before any move can be executed in the board registry, the string version of the move
+     * must be analyzed first using this method. It returns MoveMeta object as result of the
+     * analysis. MoveMeta contains very important information about the move such as which
+     * piece it is making the move, of which color, which square it is making move from to which
+     * square, etc.
+     *
+     * @param move string version of the move such as Nf3, Rxb4, O-O-O etc.
+     * @return MoveMeta analysed move meta object
+     */
     public static MoveMeta analyze(String move) {
         MoveMeta moveMeta = new MoveMeta(move.trim());
 
@@ -42,12 +40,6 @@ public class MoveAnalyzer {
         simpleMove(moveMeta);
 
         return moveMeta;
-    }
-
-    public static ArrayList<MoveMeta> analyze(String[] moves) {
-        ArrayList<MoveMeta> moveMetaArrayList = new ArrayList<>();
-        for (String move : moves) moveMetaArrayList.add(analyze(move));
-        return moveMetaArrayList;
     }
 
     // verify whether a given move is simple move such as e4, g4, Nf3, Bb5
@@ -113,15 +105,18 @@ public class MoveAnalyzer {
         }
     }
 
-    // try to detect if a given move has unique piece name such Ncxd6, R7e7, Rc3xf3=N#
+    // try to detect if a given move has unique piece name such Ncxd6, R7e7, Rc3xf3#
     private static void unique(MoveMeta moveMeta) {
+
+        // we have reached the conclusion that if it is a promotion move then there can't be any unique entity
+        if (moveMeta.promotion) return;
 
         String move = moveMeta.normalizedMove;
 
         // test whether there is anything unique about the move
         if (move.charAt(1) == 'x' || moveMeta.castle || move.length() < 4) return;
 
-        // usually it is after the piece name such Nc3 here we're talking about the "c"
+        // usually it is after the piece name such as Nc3 here we're talking about the "c"
         char uChar = move.charAt(1);
 
         // get the index for dest square based on whether "x" is there or not in the move
